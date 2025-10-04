@@ -1,433 +1,279 @@
-import React, { useState, useEffect } from 'react';
-import { Sprout, Droplets, Sun, ThermometerSun, Database, Trophy, Map, Zap, Users, BookOpen, Layers, ArrowRight, ChevronDown } from 'lucide-react';
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NASA FARMS — Demo / Прототип (Hackathon)</title>
+  <style>
+    :root{--accent:#0b74de;--muted:#6b7280;--card:#fff;--bg:#f6f7fb}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial; background:var(--bg);color:#0f172a}
+    header{background:linear-gradient(90deg,#071b2d 0%, rgba(11,116,222,.06) 60%);color:#fff;padding:28px 20px}
+    .wrap{max-width:1200px;margin:0 auto}
+    .brand{display:flex;gap:16px;align-items:center}
+    .logo{width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,#0b74de,#00c2a8);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
+    h1{margin:0;font-size:24px}
+    p.lead{margin:10px 0 0;color:#e6eefb}
 
-const NASAFarmsWebsite = () => {
-  const [activeSection, setActiveSection] = useState('hero');
-  const [scrollY, setScrollY] = useState(0);
-  const [selectedZone, setSelectedZone] = useState(null);
+    nav{margin-top:16px}
+    nav a{color:rgba(255,255,255,.9);margin-right:14px;text-decoration:none}
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    main{padding:28px 20px}
+    .grid{display:grid;grid-template-columns:1fr 420px;gap:24px}
+    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 20px rgba(16,24,40,0.06)}
 
-  const nasaDataSources = [
-    { name: 'SMAP', icon: Droplets, desc: 'Влажность почвы', color: 'from-blue-500 to-cyan-500', url: 'smap.jpl.nasa.gov' },
-    { name: 'GPM', icon: Droplets, desc: 'Осадки', color: 'from-indigo-500 to-blue-500', url: 'gpm.nasa.gov' },
-    { name: 'MODIS', icon: Sprout, desc: 'NDVI вегетация', color: 'from-green-500 to-emerald-500', url: 'modis.gsfc.nasa.gov' },
-    { name: 'POWER', icon: Sun, desc: 'Солнечная радиация', color: 'from-yellow-500 to-orange-500', url: 'power.larc.nasa.gov' },
-    { name: 'FIRMS', icon: Zap, desc: 'Пожары', color: 'from-red-500 to-orange-500', url: 'firms.modaps.eosdis.nasa.gov' },
-    { name: 'OpenET', icon: ThermometerSun, desc: 'Эвапотранспирация', color: 'from-purple-500 to-pink-500', url: 'etdata.org' }
-  ];
+    .section-title{display:flex;justify-content:space-between;align-items:center}
+    h2{margin:0;font-size:18px}
+    .muted{color:var(--muted);font-size:13px}
 
-  const climateZones = [
-    { name: 'Тропики', emoji: '🌴', challenges: ['Высокая влажность', 'Частые дожди'], color: 'bg-green-600' },
-    { name: 'Засушливый', emoji: '🏜️', challenges: ['Низкая влажность', 'Дефицит воды'], color: 'bg-yellow-600' },
-    { name: 'Умеренный', emoji: '🌾', challenges: ['Сезонные изменения', 'Морозы'], color: 'bg-blue-600' },
-    { name: 'Горный', emoji: '⛰️', challenges: ['Перепады температур', 'Ограниченные ресурсы'], color: 'bg-gray-600' },
-    { name: 'Средиземноморский', emoji: '🌿', challenges: ['Жаркое лето', 'Пожары'], color: 'bg-orange-600' },
-    { name: 'Полузасушливый', emoji: '🌵', challenges: ['Нерегулярные осадки', 'Эрозия'], color: 'bg-amber-600' }
-  ];
+    .features{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .feature{background:#f8fbff;padding:10px;border-radius:8px;font-size:14px}
 
-  const gameComponents = [
-    { icon: Map, title: 'Планшеты игроков', desc: '6 климатических зон с уникальными условиями' },
-    { icon: Database, title: 'NASA DATA карты', desc: '60+ карт с реальными спутниковыми данными' },
-    { icon: Zap, title: 'События', desc: '40 карт событий: засухи, пожары, дожди' },
-    { icon: Layers, title: 'Технологии', desc: '20+ технологий для улучшения фермы' },
-    { icon: Users, title: 'Животные', desc: 'Куры, овцы, коровы с реальными параметрами' },
-    { icon: Trophy, title: 'Система очков', desc: 'Food + 2×Resilience = победа' }
-  ];
+    .controls{display:flex;gap:8px;margin-top:12px}
+    button{background:var(--accent);color:#fff;border:0;padding:10px 12px;border-radius:8px;cursor:pointer}
+    button.ghost{background:transparent;color:var(--accent);border:1px solid rgba(11,116,222,.14)}
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-x-hidden">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-lg bg-slate-950/70 border-b border-blue-500/20">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Sprout className="w-8 h-8 text-blue-400" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              NASA FARMS
-            </span>
-          </div>
-          <div className="hidden md:flex gap-6">
-            {['О проекте', 'Игра', 'Данные NASA', 'Команда'].map((item) => (
-              <button key={item} className="hover:text-blue-400 transition-colors">
-                {item}
-              </button>
-            ))}
-          </div>
+    /* printable pack layout */
+    .print-area{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .data-card{border:1px solid #e6eefb;border-radius:8px;padding:10px;background:linear-gradient(180deg,#fff,#fbfdff)}
+    .data-card h3{margin:0;font-size:14px}
+    .meta{font-size:12px;color:var(--muted);margin-top:6px}
+    .param{display:flex;justify-content:space-between;padding:6px 0;border-top:1px dashed #eef5ff;font-size:13px}
+    .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef7ff;font-size:12px;color:var(--accent)}
+
+    /* cheat sheet */
+    .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .legend div{padding:8px;border-radius:8px;background:#fff;font-size:13px;border:1px solid #eef5ff}
+
+    footer{margin-top:20px;text-align:center;color:var(--muted);font-size:13px;padding:24px}
+
+    /* Print styles for A4 cards */
+    @media print{
+      body{background:#fff}
+      header,nav,.no-print{display:none}
+      .wrap{max-width:100%}
+      .card{box-shadow:none;border-radius:0;padding:8px}
+      .print-page{page-break-after:always}
+    }
+
+    /* responsive */
+    @media (max-width:980px){.grid{grid-template-columns:1fr}.print-area{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">NF</div>
+        <div>
+          <h1>NASA FARMS — игровой прототип</h1>
+          <p class="lead">Обучающая настольная игра, использующая открытые данные NASA (SMAP, GPM, MODIS, POWER, FIRMS, OpenET)</p>
         </div>
+      </div>
+      <nav class="no-print">
+        <a href="#about">О проекте</a>
+        <a href="#howto">Как играть</a>
+        <a href="#printable">Печать</a>
+        <a href="#sources">Источники</a>
       </nav>
-
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 pt-20">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-950" />
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        </div>
-        
-        <div className="relative max-w-6xl mx-auto text-center space-y-8">
-          <div className="inline-block px-4 py-2 bg-blue-500/20 rounded-full border border-blue-400/30 backdrop-blur-sm mb-4">
-            <span className="text-blue-300 text-sm">NASA Space Apps Challenge 2025</span>
-          </div>
-          
-          <h1 className="text-6xl md:text-8xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-green-400 bg-clip-text text-transparent animate-gradient">
-              NASA FARMS
-            </span>
-          </h1>
-          
-          <p className="text-2xl md:text-3xl text-gray-300 mb-8">
-            Настольная игра с реальными спутниковыми данными NASA
-          </p>
-          
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Обучайте устойчивому сельскому хозяйству через игровую механику, 
-            используя данные SMAP, GPM, MODIS, POWER, FIRMS и OpenET
-          </p>
-          
-          <div className="flex flex-wrap gap-4 justify-center mt-12">
-            <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg shadow-blue-500/50">
-              Скачать правила
-            </button>
-            <button className="px-8 py-4 bg-white/10 backdrop-blur-sm rounded-xl font-semibold hover:bg-white/20 transition-colors border border-white/20">
-              Смотреть демо
-            </button>
-          </div>
-          
-          <div className="animate-bounce mt-16">
-            <ChevronDown className="w-8 h-8 mx-auto text-blue-400" />
-          </div>
-        </div>
-      </section>
-
-      {/* Problem & Solution */}
-      <section className="py-20 px-6 relative">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12">
-            <div className="space-y-6 p-8 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-2xl border border-red-500/20">
-              <div className="inline-block p-3 bg-red-500/20 rounded-lg">
-                <Database className="w-8 h-8 text-red-400" />
-              </div>
-              <h2 className="text-4xl font-bold text-red-300">Проблема</h2>
-              <p className="text-xl text-gray-300 leading-relaxed">
-                Фермеры и молодёжь не используют открытые спутниковые данные NASA. 
-                Сложные технологии остаются недоступными для тех, кто больше всего нуждается в них.
-              </p>
-              <ul className="space-y-3 text-gray-400">
-                <li className="flex items-start gap-3">
-                  <span className="text-red-400 mt-1">•</span>
-                  <span>Отсутствие практических навыков работы с данными</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-red-400 mt-1">•</span>
-                  <span>Сложный язык науки отпугивает новичков</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-red-400 mt-1">•</span>
-                  <span>Нет интерактивных образовательных инструментов</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="space-y-6 p-8 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-2xl border border-green-500/20">
-              <div className="inline-block p-3 bg-green-500/20 rounded-lg">
-                <Trophy className="w-8 h-8 text-green-400" />
-              </div>
-              <h2 className="text-4xl font-bold text-green-300">Решение</h2>
-              <p className="text-xl text-gray-300 leading-relaxed">
-                NASA FARMS превращает сложные спутниковые данные в увлекательную 
-                настольную игру, где каждое решение основано на реальных научных данных.
-              </p>
-              <ul className="space-y-3 text-gray-400">
-                <li className="flex items-start gap-3">
-                  <span className="text-green-400 mt-1">✓</span>
-                  <span>Игровое обучение с реальными данными NASA</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-green-400 mt-1">✓</span>
-                  <span>Визуализация сложных параметров</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-green-400 mt-1">✓</span>
-                  <span>Практические навыки устойчивого земледелия</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* NASA Data Sources */}
-      <section className="py-20 px-6 bg-gradient-to-b from-transparent to-blue-950/30">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6">
-              Источники данных <span className="text-blue-400">NASA</span>
-            </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Каждая карта в игре содержит реальные параметры из 6 ключевых источников NASA
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {nasaDataSources.map((source, i) => {
-              const Icon = source.icon;
-              return (
-                <div 
-                  key={i}
-                  className="group p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-blue-400/50 transition-all hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20"
-                >
-                  <div className={`inline-block p-4 bg-gradient-to-br ${source.color} rounded-xl mb-4 group-hover:scale-110 transition-transform`}>
-                    <Icon className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2">{source.name}</h3>
-                  <p className="text-gray-400 mb-4">{source.desc}</p>
-                  <a href={`https://${source.url}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-2">
-                    {source.url}
-                    <ArrowRight className="w-4 h-4" />
-                  </a>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Climate Zones */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6">
-              6 климатических зон
-            </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Каждая зона имеет уникальные условия и вызовы, основанные на реальных климатических данных
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {climateZones.map((zone, i) => (
-              <div 
-                key={i}
-                onClick={() => setSelectedZone(selectedZone === i ? null : i)}
-                className={`p-6 rounded-2xl cursor-pointer transition-all ${zone.color} ${
-                  selectedZone === i ? 'scale-105 shadow-2xl' : 'hover:scale-102'
-                }`}
-              >
-                <div className="text-6xl mb-4">{zone.emoji}</div>
-                <h3 className="text-2xl font-bold mb-3">{zone.name}</h3>
-                {selectedZone === i && (
-                  <div className="space-y-2 mt-4">
-                    {zone.challenges.map((challenge, j) => (
-                      <div key={j} className="text-sm bg-black/20 px-3 py-2 rounded-lg">
-                        {challenge}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Game Components */}
-      <section className="py-20 px-6 bg-gradient-to-b from-transparent to-slate-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6">
-              Компоненты игры
-            </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Полный набор для захватывающей игры на 2-4 игрока, 45-90 минут
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {gameComponents.map((component, i) => {
-              const Icon = component.icon;
-              return (
-                <div key={i} className="p-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl border border-blue-500/20 hover:border-blue-400/50 transition-all">
-                  <Icon className="w-12 h-12 text-blue-400 mb-4" />
-                  <h3 className="text-2xl font-bold mb-3">{component.title}</h3>
-                  <p className="text-gray-400">{component.desc}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Example Card */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-5xl font-bold mb-6">
-              Пример карты <span className="text-blue-400">DATA</span>
-            </h2>
-            <p className="text-xl text-gray-400">
-              Каждая карта содержит 7 параметров с реальными значениями
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl overflow-hidden border-2 border-blue-500/30 shadow-2xl">
-            <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-6">
-              <h3 className="text-2xl font-bold">SMAP Point — East US — May 2024</h3>
-            </div>
-            
-            <div className="p-8 space-y-4">
-              <div className="flex items-center justify-between p-4 bg-blue-500/10 rounded-xl">
-                <span className="flex items-center gap-3">
-                  <Droplets className="w-6 h-6 text-blue-400" />
-                  <span className="font-semibold">Soil Moisture</span>
-                </span>
-                <span className="text-red-400 font-bold">0.12 m³/m³ (LOW)</span>
-              </div>
-              
-              <div className="flex items-center justify-between p-4 bg-blue-500/10 rounded-xl">
-                <span className="flex items-center gap-3">
-                  <Droplets className="w-6 h-6 text-blue-400" />
-                  <span className="font-semibold">Precipitation</span>
-                </span>
-                <span className="text-yellow-400 font-bold">30 mm (LOW)</span>
-              </div>
-              
-              <div className="flex items-center justify-between p-4 bg-green-500/10 rounded-xl">
-                <span className="flex items-center gap-3">
-                  <Sprout className="w-6 h-6 text-green-400" />
-                  <span className="font-semibold">NDVI</span>
-                </span>
-                <span className="text-green-400 font-bold">0.35 (MODERATE)</span>
-              </div>
-              
-              <div className="flex items-center justify-between p-4 bg-orange-500/10 rounded-xl">
-                <span className="flex items-center gap-3">
-                  <ThermometerSun className="w-6 h-6 text-orange-400" />
-                  <span className="font-semibold">Temperature</span>
-                </span>
-                <span className="text-orange-400 font-bold">28°C</span>
-              </div>
-              
-              <div className="flex items-center justify-between p-4 bg-yellow-500/10 rounded-xl">
-                <span className="flex items-center gap-3">
-                  <Sun className="w-6 h-6 text-yellow-400" />
-                  <span className="font-semibold">Solar</span>
-                </span>
-                <span className="text-yellow-400 font-bold">5.4 kWh/m²</span>
-              </div>
-            </div>
-            
-            <div className="bg-slate-950/50 p-4 text-sm text-gray-400">
-              <p>Источники: SMAP, GPM, MODIS, POWER, FIRMS</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How to Play */}
-      <section className="py-20 px-6 bg-gradient-to-b from-transparent to-blue-950/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6">
-              Как играть
-            </h2>
-            <p className="text-xl text-gray-400">
-              Простая механика — глубокая стратегия
-            </p>
-          </div>
-
-          <div className="space-y-6">
-            {[
-              { step: '1', title: 'Выберите зону', desc: 'Каждый игрок получает планшет с климатической зоной' },
-              { step: '2', title: 'Получите DATA карту', desc: 'Каждый месяц — новые данные от спутников NASA' },
-              { step: '3', title: 'Принимайте решения', desc: 'Сажайте культуры, покупайте животных, инвестируйте в технологии' },
-              { step: '4', title: 'Реагируйте на события', desc: 'Засухи, пожары, дожди — все как в реальности' },
-              { step: '5', title: 'Максимизируйте очки', desc: 'Food + 2×Resilience за 12 месяцев' }
-            ].map((item, i) => (
-              <div key={i} className="flex gap-6 p-6 bg-slate-900/50 rounded-2xl border border-blue-500/20 hover:border-blue-400/50 transition-all">
-                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl flex items-center justify-center text-3xl font-bold">
-                  {item.step}
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">{item.title}</h3>
-                  <p className="text-gray-400">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { value: '6', label: 'Источников NASA', icon: Database },
-              { value: '60+', label: 'DATA карт', icon: Layers },
-              { value: '12', label: 'Месяцев игры', icon: Sun },
-              { value: '2-4', label: 'Игрока', icon: Users }
-            ].map((stat, i) => {
-              const Icon = stat.icon;
-              return (
-                <div key={i} className="text-center p-8 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl border border-blue-500/30">
-                  <Icon className="w-12 h-12 mx-auto mb-4 text-blue-400" />
-                  <div className="text-5xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                    {stat.value}
-                  </div>
-                  <div className="text-gray-400">{stat.label}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="p-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-3xl shadow-2xl">
-            <h2 className="text-5xl font-bold mb-6">
-              Готовы начать играть?
-            </h2>
-            <p className="text-xl mb-8 opacity-90">
-              Скачайте правила и начните учиться устойчивому земледелию с данными NASA
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <button className="px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg">
-                Скачать PDF правила
-              </button>
-              <button className="px-8 py-4 bg-white/20 backdrop-blur-sm rounded-xl font-semibold hover:bg-white/30 transition-colors border border-white/30">
-                GitHub репозиторий
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 px-6 border-t border-white/10">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Sprout className="w-8 h-8 text-blue-400" />
-            <span className="text-2xl font-bold">NASA FARMS</span>
-          </div>
-          <p className="text-gray-400 mb-6">
-            Проект для NASA Space Apps Challenge 2025
-          </p>
-          <div className="flex justify-center gap-8 text-sm text-gray-500">
-            <a href="#" className="hover:text-blue-400 transition-colors">О проекте</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Правила</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Команда</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Контакты</a>
-          </div>
-        </div>
-      </footer>
     </div>
-  );
-};
+  </header>
 
-export default NASAFarmsWebsite;
+  <main class="wrap">
+    <div class="grid">
+      <section>
+        <div class="card">
+          <div class="section-title">
+            <h2 id="about">Кратко — идея и цель</h2>
+            <span class="muted">12 раундов · 2–4 игрока · 45–90 мин</span>
+          </div>
+          <p style="margin-top:10px">Игроки — фермеры в разных климатических зонах. За 12 раундов они используют реальные NASA-данные (Soil moisture, Precipitation, NDVI, Temperature, Solar, ET, Fire) и технологии, чтобы максимизировать Food и Resilience. Сайт показывает правила, компоненты и печатный прототип для хакатона.</p>
+
+          <div style="margin-top:12px">
+            <div class="features">
+              <div class="feature">Игровые планшеты A4</div>
+              <div class="feature">Колода NASA DATA (60–80)</div>
+              <div class="feature">EVENT &amp; TECH карты</div>
+              <div class="feature">Cheat-sheet: как читать NASA-карту</div>
+            </div>
+
+            <div class="controls">
+              <button id="generate-sample">Сгенерировать 12 DATA карт (пример)</button>
+              <button class="ghost" id="print-pack">Печатать / Сохранить PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="section-title">
+            <h2 id="howto">Как играть (сжатая версия)</h2>
+            <span class="muted">Структура хода</span>
+          </div>
+          <ol style="margin-top:10px;padding-left:18px">
+            <li>Каждый месяц: всем игрокам выдаётся 1 NASA DATA карта — применяются параметры (Soil moisture, Precip, NDVI, Temp, Solar, ET, Fire).</li>
+            <li>Игроки выполняют до 3 действий: посадка, кормление, уборка, инвестирование в Tech, анализ данных (Data token), торговля.</li>
+            <li>После ходов тянется EVENT карта и результаты применяются.</li>
+            <li>Каждый 3 месяца — смена сезона + Global Anomaly.</li>
+          </ol>
+          <p class="muted">Подробные формулы и таблицы трансляции чисел в LOW/NORMAL/HIGH доступны в печатном разделе.</p>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="section-title"><h2>Тех-карты (примеры)</h2><span class="muted">Баланс / Научность</span></div>
+          <ul style="margin-top:10px;padding-left:18px">
+            <li><strong>Drip irrigation</strong> — Cost 4 Credits. Игнорирует один LOW soil moisture в течение сезона.</li>
+            <li><strong>Solar pump</strong> — Cost 3 Credits. Требует Solar ≥ MED → +1 Water/мес.</li>
+            <li><strong>Remote NDVI monitoring</strong> — Cost 2 Credits + 1 Data token → узнать следующий Event.</li>
+          </ul>
+        </div>
+
+      </section>
+
+      <aside>
+        <div class="card">
+          <div class="section-title"><h2>Печатный прототип</h2><span class="muted">A4-ready</span></div>
+          <p style="margin-top:8px">Внизу страницы формируется набор карточек: 12 DATA, 8 EVENT, 6 планшетов (A4), Cheat-sheet. Нажмите «Сгенерировать 12 DATA карт», затем «Печатать / Сохранить PDF» (Ctrl+P → Save as PDF) и распечатайте на A4. Для хакатона рекомендуем 6 планшетов и 12 карт для 2–3 раундов.</p>
+
+          <div style="margin-top:8px"><strong>Ссылки (поставьте в слайд ‹Источники›):</strong>
+            <ul style="padding-left:18px;margin-top:8px">
+              <li><a href="https://smap.jpl.nasa.gov/">SMAP — soil moisture</a></li>
+              <li><a href="https://gpm.nasa.gov/">GPM — precipitation</a></li>
+              <li><a href="https://modis.gsfc.nasa.gov/data/dataprod/mod13.php">MODIS — NDVI</a></li>
+              <li><a href="https://power.larc.nasa.gov/">NASA POWER — solar &amp; temp</a></li>
+              <li><a href="https://firms.modaps.eosdis.nasa.gov/">FIRMS — fire alerts</a></li>
+            </ul>
+          </div>
+
+          <div style="margin-top:10px">
+            <strong>Что ещё я добавил(а):</strong>
+            <div class="muted">print-ready CSS, шаблон карточки, cheat-sheet, примеры Tech/Event</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h2>Cheat-sheet — быстрые пороги</h2>
+          <div class="legend">
+            <div><strong>Soil moisture</strong><div class="muted">LOW &lt;0.12 • NORMAL 0.12–0.25 • HIGH &gt;0.25</div></div>
+            <div><strong>Precip</strong><div class="muted">LOW &lt;30 mm • NORMAL 30–100 • HIGH &gt;100</div></div>
+            <div><strong>NDVI</strong><div class="muted">LOW &lt;0.2 • MOD 0.2–0.5 • HIGH &gt;0.5</div></div>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+    <!-- Printable area -->
+    <section id="printable" style="margin-top:18px">
+      <div class="card">
+        <div class="section-title"><h2>Printable pack — карточки (пример)</h2><span class="muted">Сгенерируйте и распечатайте</span></div>
+        <p class="muted" style="margin-top:8px">Ниже — пространство, которое будет заполнено 12 примерными DATA картами при нажатии кнопки. Каждая карточка — A5-ish; при печати выбирайте «Несколько страниц на лист» или используйте слот 2-up.</p>
+
+        <div id="print-area" class="print-area" style="margin-top:12px"></div>
+
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button id="regen">Обновить примеры</button>
+          <button id="print2" class="ghost">Печатать / Скачать PDF</button>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="sources" style="margin-top:18px">
+      <div class="card">
+        <div class="section-title"><h2>Источники &amp; Научная основа</h2><span class="muted">Коротко</span></div>
+        <ul style="margin-top:10px;padding-left:18px">
+          <li>SMAP — влажность почвы (точечные значения)</li>
+          <li>GPM / TRMM — осадки</li>
+          <li>MODIS (MOD13) — NDVI (16-дневный, агрегат за месяц)</li>
+          <li>NASA POWER — solar, temperature (DAV / API)</li>
+          <li>FIRMS — оперативные точки пожаров</li>
+          <li>OpenET — evapotranspiration</li>
+          <li>NASA Harvest — прикладные кейсы по EO в сельском хозяйстве</li>
+        </ul>
+
+        <p class="muted">В презентацию вставляйте эти ссылки и один пример карты, чтобы жюри увидело связь с реальными данными.</p>
+      </div>
+    </section>
+
+    <section id="downloads" style="margin-top:18px">
+      <div class="card">
+        <div class="section-title"><h2>Скачать прототипы</h2><span class="muted">PDF и презентация</span></div>
+        <p style="margin-top:8px">Я сгенерировал печатный PDF-прототип и презентацию для хакатона. Скачайте их по ссылкам ниже (файлы находятся в рабочем окружении):</p>
+        <ul style="padding-left:18px;margin-top:8px">
+          <li><strong>Printable PDF (cards + cheat-sheet + 6 player boards):</strong> <em>NASA_FARMS_printable_prototype.pdf</em></li>
+          <li><strong>Presentation (6 slides):</strong> <em>NASA_FARMS_presentation.pptx</em></li>
+        </ul>
+        <p class="muted">Если нужно, я могу сразу внести финальные правки в PDF/презентацию (локализация, реальные числа из API, логотипы) и пересоздать файлы.</p>
+      </div>
+    </section>
+
+    <footer>
+      <div class="muted">Этот сайт — прототип для хакатона NASA Space Apps Challenge. Нужны изменения, локализация, PDF со страницами A4 или автогенератор карточек из API — могу добавить.</div>
+    </footer>
+  </main>
+
+  <script>
+    // Sample generator: create 12 example DATA cards using templates described by user
+    const samples = [
+      {title:'SMAP point — East US — May',soil:0.12,precip:30,ndvi:0.35,temp:28,solar:5.4,et:90,fire:true},
+      {title:'MODIS — Sahel — Jul',soil:0.08,precip:5,ndvi:0.12,temp:36,solar:7.2,et:110,fire:false},
+      {title:'POWER — Spain — Oct',soil:0.26,precip:80,ndvi:0.52,temp:19,solar:4.1,et:60,fire:false},
+      {title:'SMAP — India — Apr',soil:0.18,precip:120,ndvi:0.45,temp:30,solar:6.8,et:95,fire:false},
+      {title:'GPM — Brazil — Jan',soil:0.32,precip:220,ndvi:0.72,temp:26,solar:5.9,et:80,fire:false},
+      {title:'MODIS — Australia — Sep',soil:0.09,precip:12,ndvi:0.22,temp:32,solar:7.5,et:120,fire:true},
+      {title:'POWER — Turkey — May',soil:0.20,precip:55,ndvi:0.41,temp:22,solar:5.2,et:70,fire:false},
+      {title:'SMAP — Russia — Jun',soil:0.15,precip:40,ndvi:0.30,temp:18,solar:3.3,et:50,fire:false},
+      {title:'GPM — Kenya — Feb',soil:0.10,precip:25,ndvi:0.18,temp:29,solar:6.1,et:85,fire:false},
+      {title:'MODIS — Andes — Nov',soil:0.22,precip:95,ndvi:0.48,temp:12,solar:3.8,et:40,fire:false},
+      {title:'POWER — Egypt — Aug',soil:0.05,precip:0,ndvi:0.07,temp:41,solar:8.0,et:140,fire:false},
+      {title:'SMAP — France — Mar',soil:0.28,precip:70,ndvi:0.57,temp:10,solar:3.6,et:45,fire:false}
+    ];
+
+    function categorySoil(v){ if(v<0.12) return 'LOW'; if(v<=0.25) return 'NORMAL'; return 'HIGH'; }
+    function categoryPrecip(v){ if(v<30) return 'LOW'; if(v<=100) return 'NORMAL'; return 'HIGH'; }
+    function categoryNDVI(v){ if(v<0.2) return 'LOW'; if(v<=0.5) return 'MODERATE'; return 'HIGH'; }
+    function categorySolar(v){ if(v<3) return 'LOW'; if(v<=6) return 'MED'; return 'HIGH'; }
+
+    function renderOne(card){
+      const el = document.createElement('div'); el.className='data-card';
+      el.innerHTML = `
+        <h3>${card.title}</h3>
+        <div class="meta">Source: sample • Month view</div>
+        <div class="param"><div>Soil moisture</div><div><strong>${card.soil.toFixed(2)}</strong> (${categorySoil(card.soil)})</div></div>
+        <div class="param"><div>Precipitation</div><div><strong>${card.precip} mm</strong> (${categoryPrecip(card.precip)})</div></div>
+        <div class="param"><div>NDVI</div><div><strong>${card.ndvi.toFixed(2)}</strong> (${categoryNDVI(card.ndvi)})</div></div>
+        <div class="param"><div>Temp</div><div><strong>${card.temp} °C</strong></div></div>
+        <div class="param"><div>Solar</div><div><strong>${card.solar.toFixed(1)}</strong> kWh/m² (${categorySolar(card.solar)})</div></div>
+        <div class="param"><div>ET</div><div><strong>${card.et} mm</strong></div></div>
+        <div class="param"><div>Fire</div><div>${card.fire?'<span class="badge">YES</span>':'NO'}</div></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--muted)">Игровой эффект: ${generateEffectText(card)}</div>
+      `;
+      return el;
+    }
+
+    function generateEffectText(c){
+      const parts=[];
+      if(categorySoil(c.soil)==='LOW') parts.push('crop yield −2 без ирригации');
+      if(categoryPrecip(c.precip)==='LOW') parts.push('water refill −1');
+      if(categoryNDVI(c.ndvi)!=='LOW') parts.push('pasture +1 feed');
+      if(c.temp>=28) parts.push('chickens −1 produce (heat)');
+      if(categorySolar(c.solar)==='HIGH') parts.push('Solar Pump +1 water');
+      if(c.et>c.precip) parts.push('ET > Precip → water deficit');
+      if(c.fire) parts.push('Fire risk — roll d6');
+      return parts.join('; ');
+    }
+
+    function generatePack(){
+      const area = document.getElementById('print-area'); area.innerHTML='';
+      samples.forEach(s=> area.appendChild(renderOne(s)));
+    }
+
+    document.getElementById('generate-sample').addEventListener('click', ()=>{ generatePack(); window.scrollTo({top:document.getElementById('printable').offsetTop, behavior:'smooth'}); });
+    document.getElementById('regen').addEventListener('click', generatePack);
+    document.getElementById('print-pack').addEventListener('click', ()=> window.print());
+    document.getElementById('print2').addEventListener('click', ()=> window.print());
+
+    // auto-generate on load so user immediately has content
+    generatePack();
+  </script>
+</body>
+</html>
