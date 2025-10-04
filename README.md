@@ -1,1 +1,461 @@
-# Agrispace
+import React, { useState, useEffect } from 'react';
+import { Sprout, Droplets, Sun, ThermometerSun, Database, Trophy, Map, Zap, Users, BookOpen, Layers, ArrowRight, ChevronDown } from 'lucide-react';
+
+const NASAFarmsWebsite = () => {
+  const [activeSection, setActiveSection] = useState('hero');
+  const [scrollY, setScrollY] = useState(0);
+  const [selectedZone, setSelectedZone] = useState(null);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const downloadRules = () => {
+    // Создаём HTML для PDF
+    const rulesHTML = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>AgriSpace - Правила игры</title>
+</head>
+<body>
+    <h1>Правила AgriSpace загружаются...</h1>
+    <p>Пожалуйста, откройте документ с правилами отдельно или используйте функцию печати в браузере для сохранения в PDF.</p>
+</body>
+</html>`;
+    
+    const blob = new Blob([rulesHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'AgriSpace_Rules.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    // Показать уведомление
+    alert('📥 Правила AgriSpace загружены!\n\nОткройте файл и используйте Ctrl+P (Cmd+P на Mac) → "Сохранить как PDF" для создания PDF версии.');
+  };
+
+  const nasaDataSources = [
+    { name: 'SMAP', icon: Droplets, desc: 'Влажность почвы', color: 'from-blue-500 to-cyan-500', url: 'smap.jpl.nasa.gov' },
+    { name: 'GPM', icon: Droplets, desc: 'Осадки', color: 'from-indigo-500 to-blue-500', url: 'gpm.nasa.gov' },
+    { name: 'MODIS', icon: Sprout, desc: 'NDVI вегетация', color: 'from-green-500 to-emerald-500', url: 'modis.gsfc.nasa.gov' },
+    { name: 'POWER', icon: Sun, desc: 'Солнечная радиация', color: 'from-yellow-500 to-orange-500', url: 'power.larc.nasa.gov' },
+    { name: 'FIRMS', icon: Zap, desc: 'Пожары', color: 'from-red-500 to-orange-500', url: 'firms.modaps.eosdis.nasa.gov' },
+    { name: 'OpenET', icon: ThermometerSun, desc: 'Эвапотранспирация', color: 'from-purple-500 to-pink-500', url: 'etdata.org' }
+  ];
+
+  const climateZones = [
+    { name: 'Тропики', emoji: '🌴', challenges: ['Высокая влажность', 'Частые дожди'], color: 'bg-green-600' },
+    { name: 'Засушливый', emoji: '🏜️', challenges: ['Низкая влажность', 'Дефицит воды'], color: 'bg-yellow-600' },
+    { name: 'Умеренный', emoji: '🌾', challenges: ['Сезонные изменения', 'Морозы'], color: 'bg-blue-600' },
+    { name: 'Горный', emoji: '⛰️', challenges: ['Перепады температур', 'Ограниченные ресурсы'], color: 'bg-gray-600' },
+    { name: 'Средиземноморский', emoji: '🌿', challenges: ['Жаркое лето', 'Пожары'], color: 'bg-orange-600' },
+    { name: 'Полузасушливый', emoji: '🌵', challenges: ['Нерегулярные осадки', 'Эрозия'], color: 'bg-amber-600' }
+  ];
+
+  const gameComponents = [
+    { icon: Map, title: 'Планшеты игроков', desc: '6 климатических зон с уникальными условиями' },
+    { icon: Database, title: 'NASA DATA карты', desc: '60+ карт с реальными спутниковыми данными' },
+    { icon: Zap, title: 'События', desc: '40 карт событий: засухи, пожары, дожди' },
+    { icon: Layers, title: 'Технологии', desc: '20+ технологий для улучшения фермы' },
+    { icon: Users, title: 'Животные', desc: 'Куры, овцы, коровы с реальными параметрами' },
+    { icon: Trophy, title: 'Система очков', desc: 'Food + 2×Resilience = победа' }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-x-hidden">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-lg bg-slate-950/70 border-b border-blue-500/20">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Sprout className="w-8 h-8 text-blue-400" />
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              AgriSpace
+            </span>
+          </div>
+          <div className="hidden md:flex gap-6">
+            {['О проекте', 'Игра', 'Данные NASA', 'Команда'].map((item) => (
+              <button key={item} className="hover:text-blue-400 transition-colors">
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center px-6 pt-20">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-950" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        </div>
+        
+        <div className="relative max-w-6xl mx-auto text-center space-y-8">
+          <div className="inline-block px-4 py-2 bg-blue-500/20 rounded-full border border-blue-400/30 backdrop-blur-sm mb-4">
+            <span className="text-blue-300 text-sm">NASA Space Apps Challenge 2025</span>
+          </div>
+          
+          <h1 className="text-6xl md:text-8xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-green-400 bg-clip-text text-transparent animate-gradient">
+              AgriSpace
+            </span>
+          </h1>
+          
+          <p className="text-2xl md:text-3xl text-gray-300 mb-8">
+            Настольная игра с реальными спутниковыми данными NASA
+          </p>
+          
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+            Обучайте устойчивому сельскому хозяйству через игровую механику, 
+            используя данные SMAP, GPM, MODIS, POWER, FIRMS и OpenET
+          </p>
+          
+          <div className="flex flex-wrap gap-4 justify-center mt-12">
+            <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg shadow-blue-500/50">
+              Скачать правила
+            </button>
+            <button className="px-8 py-4 bg-white/10 backdrop-blur-sm rounded-xl font-semibold hover:bg-white/20 transition-colors border border-white/20">
+              Смотреть демо
+            </button>
+          </div>
+          
+          <div className="animate-bounce mt-16">
+            <ChevronDown className="w-8 h-8 mx-auto text-blue-400" />
+          </div>
+        </div>
+      </section>
+
+      {/* Problem & Solution */}
+      <section className="py-20 px-6 relative">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="space-y-6 p-8 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-2xl border border-red-500/20">
+              <div className="inline-block p-3 bg-red-500/20 rounded-lg">
+                <Database className="w-8 h-8 text-red-400" />
+              </div>
+              <h2 className="text-4xl font-bold text-red-300">Проблема</h2>
+              <p className="text-xl text-gray-300 leading-relaxed">
+                Фермеры и молодёжь не используют открытые спутниковые данные NASA. 
+                Сложные технологии остаются недоступными для тех, кто больше всего нуждается в них.
+              </p>
+              <ul className="space-y-3 text-gray-400">
+                <li className="flex items-start gap-3">
+                  <span className="text-red-400 mt-1">•</span>
+                  <span>Отсутствие практических навыков работы с данными</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-red-400 mt-1">•</span>
+                  <span>Сложный язык науки отпугивает новичков</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-red-400 mt-1">•</span>
+                  <span>Нет интерактивных образовательных инструментов</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-6 p-8 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-2xl border border-green-500/20">
+              <div className="inline-block p-3 bg-green-500/20 rounded-lg">
+                <Trophy className="w-8 h-8 text-green-400" />
+              </div>
+              <h2 className="text-4xl font-bold text-green-300">Решение</h2>
+              <p className="text-xl text-gray-300 leading-relaxed">
+                NASA FARMS превращает сложные спутниковые данные в увлекательную 
+                настольную игру, где каждое решение основано на реальных научных данных.
+              </p>
+              <ul className="space-y-3 text-gray-400">
+                <li className="flex items-start gap-3">
+                  <span className="text-green-400 mt-1">✓</span>
+                  <span>Игровое обучение с реальными данными NASA</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-400 mt-1">✓</span>
+                  <span>Визуализация сложных параметров</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-400 mt-1">✓</span>
+                  <span>Практические навыки устойчивого земледелия</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* NASA Data Sources */}
+      <section className="py-20 px-6 bg-gradient-to-b from-transparent to-blue-950/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold mb-6">
+              Источники данных <span className="text-blue-400">NASA</span>
+            </h2>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              Каждая карта в игре содержит реальные параметры из 6 ключевых источников NASA
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {nasaDataSources.map((source, i) => {
+              const Icon = source.icon;
+              return (
+                <div 
+                  key={i}
+                  className="group p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-blue-400/50 transition-all hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20"
+                >
+                  <div className={`inline-block p-4 bg-gradient-to-br ${source.color} rounded-xl mb-4 group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">{source.name}</h3>
+                  <p className="text-gray-400 mb-4">{source.desc}</p>
+                  <a href={`https://${source.url}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-2">
+                    {source.url}
+                    <ArrowRight className="w-4 h-4" />
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Climate Zones */}
+      <section className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold mb-6">
+              6 климатических зон
+            </h2>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              Каждая зона имеет уникальные условия и вызовы, основанные на реальных климатических данных
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {climateZones.map((zone, i) => (
+              <div 
+                key={i}
+                onClick={() => setSelectedZone(selectedZone === i ? null : i)}
+                className={`p-6 rounded-2xl cursor-pointer transition-all ${zone.color} ${
+                  selectedZone === i ? 'scale-105 shadow-2xl' : 'hover:scale-102'
+                }`}
+              >
+                <div className="text-6xl mb-4">{zone.emoji}</div>
+                <h3 className="text-2xl font-bold mb-3">{zone.name}</h3>
+                {selectedZone === i && (
+                  <div className="space-y-2 mt-4">
+                    {zone.challenges.map((challenge, j) => (
+                      <div key={j} className="text-sm bg-black/20 px-3 py-2 rounded-lg">
+                        {challenge}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Game Components */}
+      <section className="py-20 px-6 bg-gradient-to-b from-transparent to-slate-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold mb-6">
+              Компоненты игры
+            </h2>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              Полный набор для захватывающей игры на 2-4 игрока, 45-90 минут
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {gameComponents.map((component, i) => {
+              const Icon = component.icon;
+              return (
+                <div key={i} className="p-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl border border-blue-500/20 hover:border-blue-400/50 transition-all">
+                  <Icon className="w-12 h-12 text-blue-400 mb-4" />
+                  <h3 className="text-2xl font-bold mb-3">{component.title}</h3>
+                  <p className="text-gray-400">{component.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Example Card */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-5xl font-bold mb-6">
+              Пример карты <span className="text-blue-400">DATA</span>
+            </h2>
+            <p className="text-xl text-gray-400">
+              Каждая карта содержит 7 параметров с реальными значениями
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl overflow-hidden border-2 border-blue-500/30 shadow-2xl">
+            <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-6">
+              <h3 className="text-2xl font-bold">SMAP Point — East US — May 2024</h3>
+            </div>
+            
+            <div className="p-8 space-y-4">
+              <div className="flex items-center justify-between p-4 bg-blue-500/10 rounded-xl">
+                <span className="flex items-center gap-3">
+                  <Droplets className="w-6 h-6 text-blue-400" />
+                  <span className="font-semibold">Soil Moisture</span>
+                </span>
+                <span className="text-red-400 font-bold">0.12 m³/m³ (LOW)</span>
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-blue-500/10 rounded-xl">
+                <span className="flex items-center gap-3">
+                  <Droplets className="w-6 h-6 text-blue-400" />
+                  <span className="font-semibold">Precipitation</span>
+                </span>
+                <span className="text-yellow-400 font-bold">30 mm (LOW)</span>
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-green-500/10 rounded-xl">
+                <span className="flex items-center gap-3">
+                  <Sprout className="w-6 h-6 text-green-400" />
+                  <span className="font-semibold">NDVI</span>
+                </span>
+                <span className="text-green-400 font-bold">0.35 (MODERATE)</span>
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-orange-500/10 rounded-xl">
+                <span className="flex items-center gap-3">
+                  <ThermometerSun className="w-6 h-6 text-orange-400" />
+                  <span className="font-semibold">Temperature</span>
+                </span>
+                <span className="text-orange-400 font-bold">28°C</span>
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-yellow-500/10 rounded-xl">
+                <span className="flex items-center gap-3">
+                  <Sun className="w-6 h-6 text-yellow-400" />
+                  <span className="font-semibold">Solar</span>
+                </span>
+                <span className="text-yellow-400 font-bold">5.4 kWh/m²</span>
+              </div>
+            </div>
+            
+            <div className="bg-slate-950/50 p-4 text-sm text-gray-400">
+              <p>Источники: SMAP, GPM, MODIS, POWER, FIRMS</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How to Play */}
+      <section className="py-20 px-6 bg-gradient-to-b from-transparent to-blue-950/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold mb-6">
+              Как играть
+            </h2>
+            <p className="text-xl text-gray-400">
+              Простая механика — глубокая стратегия
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {[
+              { step: '1', title: 'Выберите зону', desc: 'Каждый игрок получает планшет с климатической зоной' },
+              { step: '2', title: 'Получите DATA карту', desc: 'Каждый месяц — новые данные от спутников NASA' },
+              { step: '3', title: 'Принимайте решения', desc: 'Сажайте культуры, покупайте животных, инвестируйте в технологии' },
+              { step: '4', title: 'Реагируйте на события', desc: 'Засухи, пожары, дожди — все как в реальности' },
+              { step: '5', title: 'Максимизируйте очки', desc: 'Food + 2×Resilience за 12 месяцев' }
+            ].map((item, i) => (
+              <div key={i} className="flex gap-6 p-6 bg-slate-900/50 rounded-2xl border border-blue-500/20 hover:border-blue-400/50 transition-all">
+                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl flex items-center justify-center text-3xl font-bold">
+                  {item.step}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">{item.title}</h3>
+                  <p className="text-gray-400">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { value: '6', label: 'Источников NASA', icon: Database },
+              { value: '60+', label: 'DATA карт', icon: Layers },
+              { value: '12', label: 'Месяцев игры', icon: Sun },
+              { value: '2-4', label: 'Игрока', icon: Users }
+            ].map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <div key={i} className="text-center p-8 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl border border-blue-500/30">
+                  <Icon className="w-12 h-12 mx-auto mb-4 text-blue-400" />
+                  <div className="text-5xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                    {stat.value}
+                  </div>
+                  <div className="text-gray-400">{stat.label}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="p-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-3xl shadow-2xl">
+            <h2 className="text-5xl font-bold mb-6">
+              Готовы начать играть?
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              Скачайте правила и начните учиться устойчивому земледелию с данными NASA
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <button className="px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg">
+                Скачать PDF правила
+              </button>
+              <button className="px-8 py-4 bg-white/20 backdrop-blur-sm rounded-xl font-semibold hover:bg-white/30 transition-colors border border-white/30">
+                GitHub репозиторий
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-6 border-t border-white/10">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Sprout className="w-8 h-8 text-blue-400" />
+            <span className="text-2xl font-bold">AgriSpace</span>
+          </div>
+          <p className="text-gray-400 mb-6">
+            Проект для NASA Space Apps Challenge 2025
+          </p>
+          <div className="flex justify-center gap-8 text-sm text-gray-500">
+            <a href="#" className="hover:text-blue-400 transition-colors">О проекте</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Правила</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Команда</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Контакты</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default NASAFarmsWebsite;
