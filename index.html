@@ -12,34 +12,6 @@ const NASAFarmsWebsite = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const downloadRules = () => {
-    // Создаём HTML для PDF
-    const rulesHTML = `<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>AgriSpace - Правила игры</title>
-</head>
-<body>
-    <h1>Правила AgriSpace загружаются...</h1>
-    <p>Пожалуйста, откройте документ с правилами отдельно или используйте функцию печати в браузере для сохранения в PDF.</p>
-</body>
-</html>`;
-    
-    const blob = new Blob([rulesHTML], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'AgriSpace_Rules.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    // Показать уведомление
-    alert('📥 Правила AgriSpace загружены!\n\nОткройте файл и используйте Ctrl+P (Cmd+P на Mac) → "Сохранить как PDF" для создания PDF версии.');
-  };
-
   const nasaDataSources = [
     { name: 'SMAP', icon: Droplets, desc: 'Влажность почвы', color: 'from-blue-500 to-cyan-500', url: 'smap.jpl.nasa.gov' },
     { name: 'GPM', icon: Droplets, desc: 'Осадки', color: 'from-indigo-500 to-blue-500', url: 'gpm.nasa.gov' },
@@ -75,7 +47,7 @@ const NASAFarmsWebsite = () => {
           <div className="flex items-center gap-3">
             <Sprout className="w-8 h-8 text-blue-400" />
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              AgriSpace
+              NASA FARMS
             </span>
           </div>
           <div className="hidden md:flex gap-6">
@@ -103,7 +75,7 @@ const NASAFarmsWebsite = () => {
           
           <h1 className="text-6xl md:text-8xl font-bold mb-6">
             <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-green-400 bg-clip-text text-transparent animate-gradient">
-              AgriSpace
+              NASA FARMS
             </span>
           </h1>
           
@@ -441,7 +413,7 @@ const NASAFarmsWebsite = () => {
         <div className="max-w-7xl mx-auto text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Sprout className="w-8 h-8 text-blue-400" />
-            <span className="text-2xl font-bold">AgriSpace</span>
+            <span className="text-2xl font-bold">NASA FARMS</span>
           </div>
           <p className="text-gray-400 mb-6">
             Проект для NASA Space Apps Challenge 2025
